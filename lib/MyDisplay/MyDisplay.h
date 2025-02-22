@@ -17,7 +17,6 @@ private:
   };
 
 public:
-  bool isEnable = false;
   MyDisplay(int width = 128, int height = 32, int address = 0x3C)
       : display(U8G2_R0, /* reset=*/ U8X8_PIN_NONE), row1("initialization..."), row2("SW version 1.0"), row3("HW version 1.0") {}
 

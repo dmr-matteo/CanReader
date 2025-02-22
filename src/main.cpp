@@ -1,42 +1,88 @@
-#include <WiFi.h>
-#include "MyNetTCP.h"   // Includi la classe che hai fornito
-#include "MyDisplay.h"  // Includi la classe per il display (se utilizzato)
+/*#include <Arduino.h>
+#include <MyDisplay.h>
+#include <MyNetworkInterface.h>
 
-MyDisplay display;  // Crea un oggetto per il display (se utilizzato)
+// stating display
+MyDisplay display;
 
-// Parametri di configurazione Wi-Fi (Access Point)
-const char* ssid = "canReader";
-const char* password = "123stella";
-
-// Configura l'IP dell'ESP32 (Access Point)
-IPAddress local_IP(192, 168, 1, 1);  // Indirizzo IP statico
-IPAddress gateway(192, 168, 1, 1);   // Gateway (tipicamente uguale a local_IP)
-IPAddress subnet(255, 255, 255, 0);  // Subnet mask
-
-// Crea un oggetto della classe MyNetTCP
-MyNetTCP netTCP(ssid, password, local_IP, gateway, subnet, &display);
+// starting WiFi AP connection
+const char* ssid_AP = "canReader";
+const char* password_AP = "123stella";
+IPAddress local_IP(192, 168, 1, 100);
+IPAddress gateway(192, 168, 1, 100);  
+IPAddress subnet(255, 255, 255, 0);
+MyNetworkInterface NET(ssid_AP, password_AP, local_IP, gateway, subnet, &display);
 
 void setup() {
     Serial.begin(115200);
-    
-    // Inizializza la connessione Wi-Fi in modalità Access Point
-    if (!netTCP.WifiInit()) {
-      Serial.println("Impossibile avviare l'Access Point");
-      return;
+   
+   //display.begin();
+   // display.writeScreenHello("Hello, world!", 500);
+
+    if(NET.WifiInit())
+      NET.displayInfo();
+    else
+      Serial.println("WiFi initialization failed");
+    NET.UDPbegin(1234);
+}
+
+void loop() {
+  NET.processReceivedData();
+    //Serial.println("Hello, world!");
+}
+*/
+#include <Arduino.h>
+#include <MyDisplay.h>
+#include <MyNetTCP.h>
+
+// starting display
+MyDisplay display;
+
+// starting WiFi AP connection
+const char* ssid_AP = "canReader";
+const char* password_AP = "123stella";
+IPAddress local_IP(192, 168, 1, 100);
+IPAddress gateway(192, 168, 1, 100);  
+IPAddress subnet(255, 255, 255, 0);
+MyNetTCP NET(ssid_AP, password_AP, local_IP, gateway, subnet, &display);
+
+// Data received callback
+void onDataReceived(const char* data, IPAddress remoteIP, uint16_t remotePort) {
+    Serial.println("Data received:");
+    Serial.println(data);
+    Serial.print("From IP: ");
+    Serial.print(remoteIP);
+    Serial.print(", Port: ");
+    Serial.println(remotePort);
+}
+
+void setup() {
+    Serial.begin(115200);
+
+    // Initialize display
+    //display.begin();
+    // display.writeScreenHello("Hello, world!", 500);
+
+    // Initialize WiFi and network interface
+    if (NET.WifiInit()) {
+        NET.displayInfo();
+    } else {
+        Serial.println("WiFi initialization failed");
+        return;
     }
-  
-    // Mostra l'IP dell'ESP32 sul display (se presente)
-    netTCP.displayInfo();
-  
-    // Inizializza il server TCP sulla porta 1234
-    if (!netTCP.TCPbegin(1234)) {
-      Serial.println("Impossibile avviare il server TCP");
-      return;
+
+    // Initialize the TCP server
+    if (NET.TCPbegin(1234)) {
+        Serial.println("TCP Server started on port 1234");
+    } else {
+        Serial.println("Failed to start TCP server");
+        return;
     }
-  }
-  
-  void loop() {
-    // Controlla e gestisci i dati ricevuti dai client
-    netTCP.processReceivedData();
-    
+
+    //NET.onDataReceived(onDataReceived);
+}
+
+void loop() {
+    //NET.processReceivedData();
+    //delay(10); // Small delay to prevent overloading the CPU
 }

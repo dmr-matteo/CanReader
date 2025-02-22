@@ -30,7 +30,7 @@ public:
     void onDataReceived(void (*callback)(const char* data, IPAddress remoteIP, uint16_t remotePort));
     void checkAndRespond(const char* data, IPAddress remoteIP, uint16_t remotePort);
     void processReceivedData();
-    void onDataReceivedCallback(const char* data, IPAddress remoteIP, uint16_t remotePort);
+
     void PingTest(IPAddress remoteIP, uint16_t remotePort);
     static void pingTestTask(void* pvParameters);
 };

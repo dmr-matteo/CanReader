@@ -1,46 +1,34 @@
 import socket
-import time
-
-# Parametri del server ESP32
-ESP32_IP = '192.168.1.1'  # Indirizzo IP dell'ESP32 (sostituisci con quello effettivo)
-ESP32_PORT = 1234         # Porta sulla quale il server TCP è in ascolto
 
 def connect_to_server():
-    # Crea un oggetto socket per la connessione TCP
+    # Creazione del socket TCP
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    
+    # IP del server (puoi sostituirlo con l'IP effettivo del server a cui vuoi connetterti)
+    server_ip = '192.168.1.100'  # In questo esempio si connette al server ESP32
+    server_port = 1234  # Porta del server
 
     try:
-        # Connetti al server ESP32
-        print(f"Connettendo al server {ESP32_IP}:{ESP32_PORT}...")
-        client_socket.connect((ESP32_IP, ESP32_PORT))
-        print("Connessione stabilita!")
-        
+        # Connessione al server
+        client_socket.connect((server_ip, server_port))
+        print(f"Connesso al server {server_ip} sulla porta {server_port}")
+
         # Invia un messaggio al server
         message = "ConnectionRequest"
-        print(f"Inviando messaggio: {message}")
-        client_socket.sendall(message.encode())
-
-        # Attendi una risposta dal server
-        response = client_socket.recv(1024).decode()
-        print(f"Risposta dal server: {response}")
-
-        # Invia un altro messaggio (ad esempio, PingTest)
-        message = "PingTest"
-        print(f"Inviando messaggio: {message}")
-        client_socket.sendall(message.encode())
+        client_socket.sendall(message.encode())  # Invia il messaggio al server
+        print(f"Messaggio inviato: {message}")
         
-        # Attendi una risposta dal server
-        response = client_socket.recv(1024).decode()
-        print(f"Risposta dal server: {response}")
+        # Ricevi la risposta dal server
+        response = client_socket.recv(1024)  # Dimensione del buffer di ricezione
+        print(f"Risposta dal server: {response.decode()}")
 
     except Exception as e:
-        print(f"Errore nella connessione o nella comunicazione: {e}")
-    
-    finally:
-        # Chiudi la connessione
-        print("Chiusura della connessione...")
-        client_socket.close()
+        print(f"Errore nella connessione: {e}")
 
-if __name__ == '__main__':
-    # Esegui la funzione di connessione
+    finally:
+        # Chiudi il socket
+        client_socket.close()
+        print("Connessione chiusa.")
+
+if __name__ == "__main__":
     connect_to_server()
